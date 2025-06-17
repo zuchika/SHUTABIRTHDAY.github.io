@@ -112,9 +112,9 @@
       { label: "お誕生日です🎂", color: "#FF5252" },
       { label: "お誕生日かも？", color: "#FF9800" },
       { label: "お誕生日じゃないでしょ", color: "#FFEB3B" },
-      { label: "いちんじぃび",   color: "#4CAF50" },
+      { label: "いちんじぃび", color: "#4CAF50" },
       { label: "お誕生日ではありません", color: "#2196F3" },
-      { label: "お誕生日？今日が？",   color: "#9C27B0" },
+      { label: "お誕生日？今日が？", color: "#9C27B0" },
       { label: "お誕生日とみせかけて？？？", color: "#607D8B" },
     ];
 
@@ -144,10 +144,9 @@
       wheel.appendChild(path);
 
       const angle = start + sectorAngle / 2;
-      const textRadius = 150; // 扇の内側ぎりぎりに寄せる
-const boxX = centerX + textRadius * Math.cos((angle - 90) * Math.PI / 180) - 50;
-const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
-
+      const textRadius = 150;
+      const boxX = centerX + textRadius * Math.cos((angle - 90) * Math.PI / 180) - 50;
+      const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
 
       const foreign = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
       foreign.setAttribute("x", boxX);
@@ -175,16 +174,20 @@ const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
     let hasSpun = false;
 
     const feints = [
-      async () => { for (let i = 0; i < 3; i++) { await rotateWheel(15, 100); await rotateWheel(-15, 100); } },
-      async () => { await rotateWheel(30, 200); await rotateWheel(-20, 200); },
-      async () => { for (let i = 0; i < 5; i++) { await rotateWheel((i % 2 ? 100 : -100), 100); } },
-      async () => { for (let i = 0; i < 6; i++) { await rotateWheel(i % 2 ? 10 : -10, 80); } }
+      async () => { for (let i = 0; i < 5; i++) { await rotateWheel(5, 60); await rotateWheel(-5, 60); } },
+      async () => { await rotateWheel(-60, 300); await rotateWheel(90, 600); },
+      async () => { for (let i = 20; i >= 1; i -= 5) { await rotateWheel(i, 100); } },
+      async () => { await rotateWheel(-30, 150); await rotateWheel(60, 200); },
+      async () => { await rotateWheel(15, 500); await rotateWheel(10, 600); await rotateWheel(5, 700); },
+      async () => { await rotateWheel(30, 100); await rotateWheel(20, 200); await rotateWheel(10, 300); await rotateWheel(5, 400); },
+      async () => { await rotateWheel(0, 300); await rotateWheel(45, 300); }
     ];
 
     function rotateWheel(angle, duration) {
       return new Promise(resolve => {
+        rotated += angle;
         wheel.style.transition = `transform ${duration}ms ease-in-out`;
-        wheel.style.transform = `rotate(${rotated + angle}deg)`;
+        wheel.style.transform = `rotate(${rotated}deg)`;
         setTimeout(() => resolve(), duration);
       });
     }
@@ -197,15 +200,25 @@ const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
       congratsImage.style.display = "none";
       resultDiv.textContent = "--";
 
-      const feintIndex = Math.floor(Math.random() * feints.length);
-      await feints[feintIndex]();
+      // メイン回転（高速）
+      const mainSpins = Math.floor(Math.random() * 2 + 5);
+      rotated += mainSpins * 360;
+      wheel.style.transition = "transform 2.5s ease-in-out";
+      wheel.style.transform = `rotate(${rotated}deg)`;
 
+      await new Promise(res => setTimeout(res, 2500));
+
+      // ランダムフェイント（止まる直前）
+      const feint = feints[Math.floor(Math.random() * feints.length)];
+      await feint();
+
+      // 正確な停止角度
       const index = sectors.findIndex(s => s.label === fixedLabel);
-      const baseDeg = 360 - index * sectorAngle - sectorAngle / 2;
-      const extraSpins = Math.floor(Math.random() * 3 + 5);
-      rotated += extraSpins * 360 + baseDeg;
+      const stopAngle = 360 - index * sectorAngle - sectorAngle / 2;
+      const finalSpins = Math.floor(Math.random() * 2 + 3);
+      rotated = finalSpins * 360 + stopAngle;
 
-      wheel.style.transition = "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)";
+      wheel.style.transition = "transform 3s ease-out";
       wheel.style.transform = `rotate(${rotated}deg)`;
 
       setTimeout(() => {
@@ -213,7 +226,7 @@ const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
         congratsImage.style.display = "block";
         showConfetti();
         resetBtn.disabled = false;
-      }, 4000);
+      }, 3000);
     }
 
     function reset() {
@@ -242,3 +255,4 @@ const boxY = centerY + textRadius * Math.sin((angle - 90) * Math.PI / 180) - 25;
   </script>
 </body>
 </html>
+
